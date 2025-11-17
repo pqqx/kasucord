@@ -28,7 +28,7 @@ export default function EmbedPage({ embed, notFound }) {
         {embed.title && <meta property="og:title" content={embed.title} />}
         {embed.description && <meta property="og:description" content={embed.description} />}
         {embed.image_url && <meta property="og:image" content={embed.image_url} />}
-        {embedColor && <meta name="theme-color" content={embedColor} />}
+        <meta name="theme-color" content={embedColor} />
         <title>{embed.title || 'Discord Embed'}</title>
       </Head>
 
