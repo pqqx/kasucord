@@ -25,6 +25,9 @@ export default function EmbedPage({ embed, notFound }) {
     return (
         <>
             <Head>
+                {embed.image_display_mode === 'image' && (
+                    <meta name="twitter:card" content="summary_large_image" />
+                )}
                 <meta property="og:type" content="website" />
                 {embed.author && <meta property="og:site_name" content={embed.author} />}
                 {embed.title && <meta property="og:title" content={embed.title} />}
