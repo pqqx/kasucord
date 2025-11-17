@@ -18,6 +18,8 @@ export default function EmbedPage({ embed, notFound }) {
     );
   }
 
+  const embedColor = embed.color || '#1d73b9';
+
   return (
     <>
       <Head>
@@ -26,7 +28,7 @@ export default function EmbedPage({ embed, notFound }) {
         {embed.title && <meta property="og:title" content={embed.title} />}
         {embed.description && <meta property="og:description" content={embed.description} />}
         {embed.image_url && <meta property="og:image" content={embed.image_url} />}
-        {embed.color && <meta name="theme-color" content={embed.color} />}
+        {embedColor && <meta name="theme-color" content={embedColor} />}
         <title>{embed.title || 'Discord Embed'}</title>
       </Head>
 
@@ -42,6 +44,9 @@ export default function EmbedPage({ embed, notFound }) {
           min-height: 100vh;
           padding: 20px;
         }
+      `}</style>
+
+      <style jsx>{`
         .embed-container {
           max-width: 600px;
           width: 100%;
@@ -49,11 +54,12 @@ export default function EmbedPage({ embed, notFound }) {
           border-radius: 10px;
           padding: 30px;
           border: 1px solid #333;
+          border-left: 4px solid ${embedColor};
         }
         h1 {
           font-size: 24px;
           margin-bottom: 15px;
-          color: ${embed.color || '#1d73b9'};
+          color: ${embedColor};
         }
         .author {
           font-size: 14px;
