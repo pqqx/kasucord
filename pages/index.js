@@ -10,6 +10,7 @@ export default function Home() {
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [color, setColor] = useState('#000000');
+  const [imageDisplayMode, setImageDisplayMode] = useState('image');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -19,7 +20,7 @@ export default function Home() {
       const response = await fetch('/api/create-embed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ author, title, titleUrl, description, imageUrl, color })
+        body: JSON.stringify({ author, title, titleUrl, description, imageUrl, color, imageDisplayMode })
       });
       const data = await response.json();
       if (data.id) {
@@ -34,7 +35,7 @@ export default function Home() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedUrl);
-    alert('URLをコピーしました！');
+    alert('URLをコピーしました');
   };
 
   const formatDescription = (text) => {
@@ -53,6 +54,33 @@ export default function Home() {
       </Head>
 
       <style jsx global>{`
+        .image-mode-selector {
+          display: flex;
+          gap: 20px;
+          margin-top: 5px;
+        }
+        .image-mode-selector label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          cursor: pointer;
+        }
+
+        .embed-content.with-thumbnail {
+            display: flex;
+            gap: 16px;
+        }
+        .embed-main-content {
+            flex: 1;
+        }
+        .embed-thumbnail img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
         :root {
           --main-accent: #1d73b9;
           --bg-primary: #0a0a0a;
@@ -199,7 +227,7 @@ export default function Home() {
           padding: 8px 16px 16px 12px;
           color: #dcddde;
           font-size: 14px;
-          overflow: hidden; /* はみ出し防止 */
+          overflow: hidden;
         }
         .embed-author {
           font-weight: 600;
@@ -208,7 +236,7 @@ export default function Home() {
         }
         .embed-title {
           font-weight: 700;
-          color: #00a8fc; 
+          color: #00a8fc;
           font-size: 16px;
           margin-bottom: 8px;
         }
@@ -271,9 +299,7 @@ export default function Home() {
           <div className="container">
             <h1>Discord Embed Generator</h1>
             <p className="subtitle">nemtudoのパクリでクカ</p>
-
             <h2>Customize</h2>
-
             <div className="form-group">
               <label>Author</label>
               <input
@@ -283,7 +309,6 @@ export default function Home() {
                 placeholder="ねこ"
               />
             </div>
-
             <div className="form-group">
               <label>Title</label>
               <input
@@ -293,7 +318,6 @@ export default function Home() {
                 placeholder="12歳です"
               />
             </div>
-
             <div className="form-group">
               <label>Description</label>
               <textarea
@@ -312,9 +336,31 @@ export default function Home() {
                 placeholder="https://example.com/image.png"
               />
             </div>
+            <div className="form-group">
+              <label>Redirect URL</label>
+              <input
+                type="url"
+                value={titleUrl}
+                onChange={(e) => setTitleUrl(e.target.value)}
+                placeholder="https://example.com (option)"
+              />
+            </div>
+            <div className="form-group">
+                <label>画像表示タイプ</label>
+                <div className='image-mode-selector'>
+                    <label>
+                        <input type="radio" name="image-mode" value="image" checked={imageDisplayMode === 'image'} onChange={e => setImageDisplayMode(e.target.value)} />
+                        大きい画像 (Image)
+                    </label>
+                    <label>
+                        <input type="radio" name="image-mode" value="thumbnail" checked={imageDisplayMode === 'thumbnail'} onChange={e => setImageDisplayMode(e.target.value)} />
+                        小さい画像 (Thumbnail)
+                    </label>
+                </div>
+            </div>
 
             <div className="form-group">
-              <label>Color</label>
+                <label>Color</label>
               <div className="color-input-group">
                 <input
                   type="color"
@@ -331,16 +377,6 @@ export default function Home() {
                   }}
                 />
               </div>
-              
-              <div className="form-group">
-                <label>Redirect URL</label>
-                  <input
-                    type="url"
-                    value={titleUrl}
-                    onChange={(e) => setTitleUrl(e.target.value)}
-                placeholder="option"
-              />
-            </div>
             </div>
 
             <button onClick={handleGenerate} disabled={isGenerating}>
@@ -349,16 +385,6 @@ export default function Home() {
 
             {generatedUrl && (
               <div className="generated-url-box">
-                <h2>生成されたURL</h2>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-                  このURLをDiscordに貼り付けてください
-                </p>
-                <div className="url-display">
-                  <div className="url-text">{generatedUrl}</div>
-                  <button className="copy-btn" onClick={copyToClipboard}>
-                    コピー
-                  </button>
-                </div>
               </div>
             )}
           </div>
@@ -370,30 +396,32 @@ export default function Home() {
           </div>
           <div className="discord-embed-wrapper">
             <div className="embed-sidebar" style={{ backgroundColor: color }} />
-            <div className="embed-content">
-              {author && <div className="embed-author">{author}</div>}
-              {title && (
-                <div className="embed-title">
-                  {titleUrl ? (
-                    <a href={titleUrl} target="_blank" rel="noopener noreferrer">
-                      {title}
-                    </a>
-                  ) : (
-                    title
-                  )}
+            <div className={`embed-content ${imageUrl && imageDisplayMode === 'thumbnail' ? 'with-thumbnail' : ''}`}>
+                <div className='embed-main-content'>
+                    {author && <div className="embed-author">{author}</div>}
+                    {title && (
+                        <div className="embed-title">
+                        {titleUrl ? (
+                            <a href={titleUrl} target="_blank" rel="noopener noreferrer">{title}</a>
+                        ) : (
+                            title
+                        )}
+                        </div>
+                    )}
+                    {description && (
+                        <div className="embed-description" dangerouslySetInnerHTML={{ __html: formatDescription(description) }} />
+                    )}
+                    {imageUrl && imageDisplayMode === 'image' && (
+                        <div className="embed-image">
+                        <img src={imageUrl} alt="Embed preview" />
+                        </div>
+                    )}
                 </div>
-              )}
-              {description && (
-                <div
-                  className="embed-description"
-                  dangerouslySetInnerHTML={{ __html: formatDescription(description) }}
-                />
-              )}
-              {imageUrl && (
-                <div className="embed-image">
-                  <img src={imageUrl} alt="Embed preview" />
-                </div>
-              )}
+                {imageUrl && imageDisplayMode === 'thumbnail' && (
+                    <div className="embed-thumbnail">
+                        <img src={imageUrl} alt="Embed thumbnail preview" />
+                    </div>
+                )}
             </div>
           </div>
         </aside>
