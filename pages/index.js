@@ -293,16 +293,6 @@ export default function Home() {
                 placeholder="12歳です"
               />
             </div>
-            
-            <div className="form-group">
-              <label>Title URL</label>
-              <input
-                type="url"
-                value={titleUrl}
-                onChange={(e) => setTitleUrl(e.target.value)}
-                placeholder="https://example.com (optional)"
-              />
-            </div>
 
             <div className="form-group">
               <label>Description</label>
@@ -341,6 +331,16 @@ export default function Home() {
                   }}
                 />
               </div>
+              
+              <div className="form-group">
+                <label>Redirect URL</label>
+                  <input
+                    type="url"
+                    value={titleUrl}
+                    onChange={(e) => setTitleUrl(e.target.value)}
+                placeholder="option"
+              />
+            </div>
             </div>
 
             <button onClick={handleGenerate} disabled={isGenerating}>
