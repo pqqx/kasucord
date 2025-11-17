@@ -9,6 +9,7 @@ export default function Home() {
   const [color, setColor] = useState('#1d73b9');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [titleUrl, setTitleUrl] = useState('');
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -357,6 +358,15 @@ export default function Home() {
                       setColor(e.target.value);
                     }
                   }}
+                />
+              </div>
+              <div className="form-group">
+                <label>Redirect Link</label>
+                <input
+                  type="url"
+                  value={titleUrl}
+                  onChange={(e) => setTitleUrl(e.target.value)}
+                  placeholder="https://example.com"
                 />
               </div>
             </div>
