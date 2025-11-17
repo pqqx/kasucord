@@ -3,8 +3,8 @@ import Head from 'next/head';
 
 export default function Home() {
   const [author, setAuthor] = useState('');
-  const [title, setTitle] = useState('Welcome to the Embed Generator!');
-  const [description, setDescription] = useState('Use the form on the left to customize this embed.\n\n**Features**:\n* Real-time preview\n* Easy-to-use interface\n* [Links are supported!](https://example.com)');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [color, setColor] = useState('#1d73b9');
   const [generatedUrl, setGeneratedUrl] = useState('');
@@ -291,7 +291,7 @@ export default function Home() {
         <main>
           <div className="container">
             <h1>Discord Embed Generator</h1>
-            <p className="subtitle">Send embeds without needing a bot or webhook!</p>
+            <p className="subtitle">nemtudoのパクリでクカ</p>
 
             <h2>Customize</h2>
 
@@ -301,7 +301,7 @@ export default function Home() {
                 type="text"
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Author name..."
+                placeholder="ねこ"
               />
             </div>
 
@@ -311,7 +311,7 @@ export default function Home() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="This is the title"
+                placeholder="12歳です"
               />
             </div>
 
@@ -320,7 +320,7 @@ export default function Home() {
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="And this is the description... You can use Markdown!"
+                placeholder="未成年との淫行を楽しむ✅️"
               />
             </div>
 
@@ -355,7 +355,7 @@ export default function Home() {
             </div>
 
             <button onClick={handleGenerate} disabled={isGenerating}>
-              {isGenerating ? '生成中...' : 'URLを生成する'}
+              {isGenerating ? '生成中' : '生成する'}
             </button>
 
             {generatedUrl && (
@@ -377,7 +377,7 @@ export default function Home() {
 
         <aside className="preview-wrapper">
           <div className="preview-info">
-            プレビューは100%正確ではありません。実際にテストすることをお勧めします。
+            使う前にチェックしろどわー
           </div>
           <div className="discord-embed-wrapper">
             <div className="embed-sidebar" style={{ backgroundColor: color }} />
