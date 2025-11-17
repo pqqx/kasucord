@@ -228,9 +228,16 @@ export default function Home() {
 
         .embed-title {
           font-weight: 700;
-          color: #ffffff;
+          color: #00a8fc !important;
           font-size: 16px;
           margin-bottom: 8px;
+        }
+        .embed-title a {
+          color: inherit;
+          text-decoration: none;
+        }
+        .embed-title a:hover {
+          text-decoration: underline;
         }
 
         .embed-description {
