@@ -8,10 +8,8 @@ export default async function handler(req, res) {
   try {
     const { author, title, description, imageUrl, color } = req.body;
     
-    // ランダムなIDを生成（6文字の英数字）
     const id = Math.random().toString(36).substring(2, 8);
     
-    // データベースにEmbed情報を保存
     await sql`
       INSERT INTO embeds (id, author, title, description, image_url, color, created_at)
       VALUES (${id}, ${author}, ${title}, ${description}, ${imageUrl}, ${color}, NOW())
