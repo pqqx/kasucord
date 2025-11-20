@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 export default function EmbedPage({ embed, notFound }) {
     useEffect(() => {
-        window.location.href = 'https://dmbd.vercel.app';
+        window.location.href = 'https://embd.vercel.app';
     }, []);
 
     if (notFound) {
