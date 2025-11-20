@@ -7,7 +7,7 @@ export default function Home() {
   const [titleUrl, setTitleUrl] = useState('');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [color, setColor] = useState('#1d73b9');
+  const [color, setColor] = useState('#000000');
   const [imageDisplayMode, setImageDisplayMode] = useState('image');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
