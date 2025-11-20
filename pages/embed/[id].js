@@ -40,7 +40,7 @@ export default function EmbedPage({ embed, notFound }) {
 
             <div>
               <p>
-                <a href="https://dmbd.vercel.app">redirect</a>.
+                <a href="https://embd.vercel.app">redirect</a>.
               </p>
             </div>
         </>
