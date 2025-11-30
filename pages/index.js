@@ -2,6 +2,9 @@ import { useState } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState('create'); // 'create' か 'fetch'
+  
+  // 作成用ステート
   const [author, setAuthor] = useState('');
   const [title, setTitle] = useState('');
   const [titleUrl, setTitleUrl] = useState('');
@@ -12,6 +15,11 @@ export default function Home() {
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // 取得用ステート
+  const [fetchInput, setFetchInput] = useState('');
+  const [isFetching, setIsFetching] = useState(false);
+
+  // Embed生成処理
   const handleGenerate = async () => {
     setIsGenerating(true);
     setGeneratedUrl('');
@@ -35,12 +43,57 @@ export default function Home() {
     setIsGenerating(false);
   };
 
+  // Embed取得処理
+  const handleFetch = async () => {
+    if (!fetchInput) return;
+    setIsFetching(true);
+
+    try {
+      // URLからIDを抽出 (https://.../embed/ID または IDそのままに対応)
+      let embedId = fetchInput;
+      if (fetchInput.includes('/embed/')) {
+        const parts = fetchInput.split('/embed/');
+        if (parts[1]) {
+          embedId = parts[1].split('/')[0]; // 後ろにクエリなどがついていてもIDだけ取る
+        }
+      }
+
+      const response = await fetch(`/api/get-embed?id=${embedId}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) throw new Error('指定されたEmbedが見つかりませんでした。');
+        throw new Error('データの取得に失敗しました。');
+      }
+
+      const data = await response.json();
+
+      // 取得したデータをフォームに反映
+      setAuthor(data.author);
+      setTitle(data.title);
+      setTitleUrl(data.titleUrl);
+      setDescription(data.description);
+      setImageUrl(data.imageUrl);
+      setColor(data.color);
+      setImageDisplayMode(data.imageDisplayMode);
+
+      alert('データを読み込みました！作成画面に移動します。');
+      setActiveTab('create'); // 読み込み完了後に作成タブへ移動
+      setFetchInput(''); // 入力欄をクリア
+
+    } catch (error) {
+      alert('エラー: ' + error.message);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedUrl);
     alert('URLをコピーしました！');
   };
 
   const formatDescription = (text) => {
+    if (!text) return '';
     return text
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -56,9 +109,32 @@ export default function Home() {
       </Head>
 
       <style jsx global>{`
-        :root { --main-accent: #1d73b9; --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-tertiary: #1a1a1a; --border-color: #333; --text-primary: #f5f5f5; --text-secondary: #aaaaaa; }
+        :root { --main-accent: #1d73b9; --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-tertiary: #1a1a1a; --border-color: #333; --text-primary: #f5f5f5; --text-secondary: #aaaaaa; --tab-active: #00a8fc; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #000; color: var(--text-primary); line-height: 1.5; }
+        
+        /* Header Styles */
+        .main-header { display: flex; justify-content: center; gap: 20px; padding: 20px 0; margin-bottom: 20px; }
+        .tab-button {
+            background: transparent;
+            border: 2px solid var(--tab-active);
+            color: var(--tab-active);
+            padding: 10px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.2s;
+            width: auto;
+            margin-top: 0;
+        }
+        .tab-button.active {
+            background-color: var(--tab-active);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 168, 252, 0.4);
+        }
+        .tab-button:hover { transform: translateY(-2px); }
+
         h1 { font-size: 26px; margin: 0 0 15px 0; font-weight: 600; text-align: center; }
         .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 30px; font-size: 14px; }
         h2 { font-size: 20px; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); font-weight: 600; }
@@ -69,11 +145,13 @@ export default function Home() {
         input:focus, textarea:focus { outline: none; border-color: var(--main-accent); box-shadow: 0 0 0 2px rgba(29, 115, 185, 0.3); }
         input[type="color"] { border: none; width: 40px; height: 25px; border-radius: 6px; cursor: pointer; }
         textarea { resize: vertical; min-height: 80px; font-family: inherit; }
-        button { background-color: var(--main-accent); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; margin-top: 10px; transition: all 0.2s; }
-        button:hover:not(:disabled) { background-color: #2980d1; transform: translateY(-1px); }
+        button.action-btn { background-color: var(--main-accent); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; margin-top: 10px; transition: all 0.2s; }
+        button.action-btn:hover:not(:disabled) { background-color: #2980d1; transform: translateY(-1px); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .app-layout { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1200px; margin: 20px auto; padding: 10px; }
+        
+        .app-layout { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1200px; margin: 0 auto 20px auto; padding: 10px; }
         @media (min-width: 900px) { .app-layout { grid-template-columns: 1.5fr 1fr; } }
+        
         .preview-wrapper { position: sticky; top: 20px; height: fit-content; }
         .preview-info { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 10px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 10px; border: 1px solid #222; }
         .discord-embed-wrapper { background-color: #2f3136; border-radius: 4px; display: flex; max-width: 520px; width: 100%; }
@@ -90,7 +168,8 @@ export default function Home() {
         .generated-url-box { background-color: var(--bg-primary); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-top: 15px; }
         .url-display { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
         .url-text { flex: 1; background-color: var(--bg-tertiary); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; word-break: break-all; }
-        .copy-btn { flex-shrink: 0; width: auto; margin: 0; }
+        .copy-btn { flex-shrink: 0; width: auto; margin: 0; background-color: #222; border: 1px solid #444; color: #fff; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+        .copy-btn:hover { background-color: #333; }
         .image-mode-selector { display: flex; gap: 20px; margin-top: 5px; align-items: center; }
         .image-mode-selector label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; color: var(--text-primary); }
         .embed-content.with-thumbnail { display: flex; gap: 16px; }
@@ -98,73 +177,117 @@ export default function Home() {
         .embed-thumbnail img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; flex-shrink: 0; margin-top: 8px; }
       `}</style>
 
+      {/* Header with Tabs */}
+      <header className="main-header">
+        <button 
+            className={`tab-button ${activeTab === 'create' ? 'active' : ''}`}
+            onClick={() => setActiveTab('create')}
+        >
+            埋め込み作成
+        </button>
+        <button 
+            className={`tab-button ${activeTab === 'fetch' ? 'active' : ''}`}
+            onClick={() => setActiveTab('fetch')}
+        >
+            埋め込み取得
+        </button>
+      </header>
+
       <div className="app-layout">
         <main>
           <div className="container">
             <h1>Discord Embed Generator</h1>
             <p className="subtitle">nemtudoのパクリでクカ</p>
-            <h2>Customize</h2>
 
-            <div className="form-group">
-              <label>Author</label>
-              <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="ねこ" />
-            </div>
-
-            <div className="form-group">
-              <label>Title</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="12歳です" />
-            </div>
-
-            <div className="form-group">
-              <label>Description</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="未成年との淫行を楽しむ✅️" />
-            </div>
-
-            <div className="form-group">
-              <label>Image URL</label>
-              <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.png" />
-            </div>
-            
-            <div className="form-group">
-              <label>画像表示タイプ</label>
-              <div className='image-mode-selector'>
-                <label>
-                  <input type="radio" name="image-mode" value="image" checked={imageDisplayMode === 'image'} onChange={e => setImageDisplayMode(e.target.value)} />
-                  大きい画像 (Image)
-                </label>
-                <label>
-                  <input type="radio" name="image-mode" value="thumbnail" checked={imageDisplayMode === 'thumbnail'} onChange={e => setImageDisplayMode(e.target.value)} />
-                  小さい画像 (Thumbnail)
-                </label>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Color</label>
-              <div className="color-input-group">
-                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
-                <input type="text" value={color} onChange={(e) => { if (/^#[0-9A-F]{6}$/i.test(e.target.value)) { setColor(e.target.value) }}} />
-              </div>
-
-            <div className="form-group">
-              <label>Redirect URL</label>
-              <input type="url" value={titleUrl} onChange={(e) => setTitleUrl(e.target.value)} placeholder="https://example.com (option)" />
-              </div>
-            </div>
-
-            <button onClick={handleGenerate} disabled={isGenerating}>
-              {isGenerating ? '生成中' : '生成する'}
-            </button>
-
-            {generatedUrl && (
-              <div className="generated-url-box">
-                <h2>生成されたURL</h2>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '10px' }}>このURLをDiscordに貼り付けてください</p>
-                <div className="url-display">
-                  <div className="url-text">{generatedUrl}</div>
-                  <button className="copy-btn" onClick={copyToClipboard}>コピー</button>
+            {/* FETCH TAB CONTENT */}
+            {activeTab === 'fetch' && (
+                <div className="fetch-panel">
+                    <h2>既存のEmbedを取得</h2>
+                    <div className="form-group">
+                        <label>EmbedのURL または ID</label>
+                        <input 
+                            type="text" 
+                            value={fetchInput} 
+                            onChange={(e) => setFetchInput(e.target.value)} 
+                            placeholder="https://embd.vercel.app/embed/xxxxxx または xxxxxx" 
+                        />
+                    </div>
+                    <button className="action-btn" onClick={handleFetch} disabled={isFetching}>
+                        {isFetching ? '読み込み中...' : 'データを読み込む'}
+                    </button>
+                    <p style={{marginTop: '15px', fontSize: '13px', color: '#888'}}>
+                        ※ 読み込みに成功すると、自動的に作成画面に移動し、内容が反映されます。
+                    </p>
                 </div>
-              </div>
+            )}
+
+            {/* CREATE TAB CONTENT */}
+            {activeTab === 'create' && (
+                <>
+                    <h2>Customize</h2>
+
+                    <div className="form-group">
+                    <label>Author</label>
+                    <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="ねこ" />
+                    </div>
+
+                    <div className="form-group">
+                    <label>Title</label>
+                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="12歳です" />
+                    </div>
+
+                    <div className="form-group">
+                    <label>Description</label>
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="未成年との淫行を楽しむ✅️" />
+                    </div>
+
+                    <div className="form-group">
+                    <label>Image URL</label>
+                    <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.png" />
+                    </div>
+                    
+                    <div className="form-group">
+                    <label>画像表示タイプ</label>
+                    <div className='image-mode-selector'>
+                        <label>
+                        <input type="radio" name="image-mode" value="image" checked={imageDisplayMode === 'image'} onChange={e => setImageDisplayMode(e.target.value)} />
+                        大きい画像 (Image)
+                        </label>
+                        <label>
+                        <input type="radio" name="image-mode" value="thumbnail" checked={imageDisplayMode === 'thumbnail'} onChange={e => setImageDisplayMode(e.target.value)} />
+                        小さい画像 (Thumbnail)
+                        </label>
+                    </div>
+                    </div>
+
+                    <div className="form-group">
+                    <label>Color</label>
+                    <div className="color-input-group">
+                        <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+                        <input type="text" value={color} onChange={(e) => { if (/^#[0-9A-F]{6}$/i.test(e.target.value)) { setColor(e.target.value) }}} />
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                    <label>Redirect URL</label>
+                    <input type="url" value={titleUrl} onChange={(e) => setTitleUrl(e.target.value)} placeholder="https://example.com (option)" />
+                    </div>
+                    </div>
+
+                    <button className="action-btn" onClick={handleGenerate} disabled={isGenerating}>
+                    {isGenerating ? '生成中' : '生成する'}
+                    </button>
+
+                    {generatedUrl && (
+                    <div className="generated-url-box">
+                        <h2>生成されたURL</h2>
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '10px' }}>このURLをDiscordに貼り付けてください</p>
+                        <div className="url-display">
+                        <div className="url-text">{generatedUrl}</div>
+                        <button className="copy-btn" onClick={copyToClipboard}>コピー</button>
+                        </div>
+                    </div>
+                    )}
+                </>
             )}
           </div>
         </main>
@@ -198,3 +321,4 @@ export default function Home() {
     </>
   );
 }
+
