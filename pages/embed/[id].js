@@ -3,9 +3,16 @@ import Head from 'next/head';
 import { useEffect } from 'react';
 
 export default function EmbedPage({ embed, notFound }) {
+    // 優先順位: 設定されたRedirect URL > デフォルトのURL
+    const redirectTarget = embed?.title_url || 'https://embd.vercel.app';
+
     useEffect(() => {
-        window.location.href = 'https://embd.vercel.app';
-    }, []);
+        // Embedが見つからない場合はリダイレクトしない、または別途処理
+        if (notFound) return;
+        
+        // 設定されたURLへリダイレクト
+        window.location.href = redirectTarget;
+    }, [redirectTarget, notFound]);
 
     if (notFound) {
         return (
@@ -40,7 +47,8 @@ export default function EmbedPage({ embed, notFound }) {
 
             <div>
               <p>
-                <a href="https://embd.vercel.app">redirect</a>.
+                {/* 手動クリック用のリンクもリダイレクト先に合わせる */}
+                <a href={redirectTarget}>redirect</a>.
               </p>
             </div>
         </>
