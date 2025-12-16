@@ -3,8 +3,6 @@ import Head from 'next/head';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('create'); // 'create' か 'fetch'
-  
-  // 作成用ステート
   const [author, setAuthor] = useState('');
   const [title, setTitle] = useState('');
   const [titleUrl, setTitleUrl] = useState('');
@@ -14,12 +12,8 @@ export default function Home() {
   const [imageDisplayMode, setImageDisplayMode] = useState('image');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-
-  // 取得用ステート
   const [fetchInput, setFetchInput] = useState('');
   const [isFetching, setIsFetching] = useState(false);
-
-  // Embed生成処理
   const handleGenerate = async () => {
     setIsGenerating(true);
     setGeneratedUrl('');
@@ -30,7 +24,7 @@ export default function Home() {
         body: JSON.stringify({ author, title, titleUrl, description, imageUrl, color, imageDisplayMode })
       });
       if (!response.ok) {
-        throw new Error('サーバーでエラーが発生しました。');
+        throw new Error('Internal Server Error');
       }
       const data = await response.json();
       if (data.id) {
@@ -38,36 +32,32 @@ export default function Home() {
         setGeneratedUrl(url);
       }
     } catch (error) {
-      alert('エラーが発生しました: ' + error.message);
+      alert('Error: ' + error.message);
     }
     setIsGenerating(false);
   };
 
-  // Embed取得処理
   const handleFetch = async () => {
     if (!fetchInput) return;
     setIsFetching(true);
 
     try {
-      // URLからIDを抽出 (https://.../embed/ID または IDそのままに対応)
       let embedId = fetchInput;
       if (fetchInput.includes('/embed/')) {
         const parts = fetchInput.split('/embed/');
         if (parts[1]) {
-          embedId = parts[1].split('/')[0]; // 後ろにクエリなどがついていてもIDだけ取る
+          embedId = parts[1].split('/')[0];
         }
       }
 
       const response = await fetch(`/api/get-embed?id=${embedId}`);
       
       if (!response.ok) {
-        if (response.status === 404) throw new Error('指定されたEmbedが見つかりませんでした。');
-        throw new Error('データの取得に失敗しました。');
+        if (response.status === 404) throw new Error('指定されたEmbedデータが見つかりません');
+        throw new Error('データの取得に失敗しました');
       }
 
       const data = await response.json();
-
-      // 取得したデータをフォームに反映
       setAuthor(data.author);
       setTitle(data.title);
       setTitleUrl(data.titleUrl);
@@ -76,12 +66,12 @@ export default function Home() {
       setColor(data.color);
       setImageDisplayMode(data.imageDisplayMode);
 
-      alert('データを読み込みました！作成画面に移動します。');
-      setActiveTab('create'); // 読み込み完了後に作成タブへ移動
-      setFetchInput(''); // 入力欄をクリア
+      alert('Embedデータ発見。作成画面へ移行します');
+      setActiveTab('create');
+      setFetchInput('');
 
     } catch (error) {
-      alert('エラー: ' + error.message);
+      alert('Error: ' + error.message);
     } finally {
       setIsFetching(false);
     }
@@ -89,7 +79,7 @@ export default function Home() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedUrl);
-    alert('URLをコピーしました！');
+    alert('URLをコピーしました');
   };
 
   const formatDescription = (text) => {
@@ -177,7 +167,6 @@ export default function Home() {
         .embed-thumbnail img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; flex-shrink: 0; margin-top: 8px; }
       `}</style>
 
-      {/* Header with Tabs */}
       <header className="main-header">
         <button 
             className={`tab-button ${activeTab === 'create' ? 'active' : ''}`}
@@ -199,10 +188,9 @@ export default function Home() {
             <h1>Discord Embed Generator</h1>
             <p className="subtitle">nemtudoのパクリでクカ</p>
 
-            {/* FETCH TAB CONTENT */}
             {activeTab === 'fetch' && (
                 <div className="fetch-panel">
-                    <h2>既存のEmbedを取得</h2>
+                    <h2>Embedデータを取得</h2>
                     <div className="form-group">
                         <label>EmbedのURL または ID</label>
                         <input 
@@ -216,7 +204,7 @@ export default function Home() {
                         {isFetching ? '読み込み中...' : 'データを読み込む'}
                     </button>
                     <p style={{marginTop: '15px', fontSize: '13px', color: '#888'}}>
-                        ※ 読み込みに成功すると、自動的に作成画面に移動し、内容が反映されます。
+                        読み込みに成功すると、作成画面に移動し、内容が反映されます
                     </p>
                 </div>
             )}
