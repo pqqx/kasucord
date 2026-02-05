@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('create'); // 'create' か 'fetch'
+  const [activeTab, setActiveTab] = useState('create');
   const [author, setAuthor] = useState('');
   const [title, setTitle] = useState('');
   const [titleUrl, setTitleUrl] = useState('');
@@ -14,6 +14,8 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [fetchInput, setFetchInput] = useState('');
   const [isFetching, setIsFetching] = useState(false);
+  const [copyStatus, setCopyStatus] = useState({ type: null, active: false });
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     setGeneratedUrl('');
@@ -40,7 +42,6 @@ export default function Home() {
   const handleFetch = async () => {
     if (!fetchInput) return;
     setIsFetching(true);
-
     try {
       let embedId = fetchInput;
       if (fetchInput.includes('/embed/')) {
@@ -49,14 +50,11 @@ export default function Home() {
           embedId = parts[1].split('/')[0];
         }
       }
-
       const response = await fetch(`/api/get-embed?id=${embedId}`);
-      
       if (!response.ok) {
         if (response.status === 404) throw new Error('指定されたEmbedデータが見つかりません');
         throw new Error('データの取得に失敗しました');
       }
-
       const data = await response.json();
       setAuthor(data.author);
       setTitle(data.title);
@@ -65,11 +63,8 @@ export default function Home() {
       setImageUrl(data.imageUrl);
       setColor(data.color);
       setImageDisplayMode(data.imageDisplayMode);
-
-      alert('Embedデータ発見。作成画面へ移行します');
       setActiveTab('create');
       setFetchInput('');
-
     } catch (error) {
       alert('Error: ' + error.message);
     } finally {
@@ -77,9 +72,14 @@ export default function Home() {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedUrl);
-    alert('URLをコピーしました');
+  const handleCopy = async (text, type) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyStatus({ type, active: true });
+      setTimeout(() => setCopyStatus({ type: null, active: false }), 2000);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
   };
 
   const formatDescription = (text) => {
@@ -99,87 +99,40 @@ export default function Home() {
       </Head>
 
       <style jsx global>{`
-        :root { --main-accent: #1d73b9; --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-tertiary: #1a1a1a; --border-color: #333; --text-primary: #f5f5f5; --text-secondary: #aaaaaa; --tab-active: #00a8fc; }
+        :root { --main-accent: #1d73b9; --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-tertiary: #1a1a1a; --border-color: #333; --text-primary: #f5f5f5; --text-secondary: #aaaaaa; --tab-active: #00a8fc; --success-color: #28a745; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #000; color: var(--text-primary); line-height: 1.5; }
-        
-        /* Header Styles */
         .main-header { display: flex; justify-content: center; gap: 20px; padding: 20px 0; margin-bottom: 20px; }
-        .tab-button {
-            background: transparent;
-            border: 2px solid var(--tab-active);
-            color: var(--tab-active);
-            padding: 10px 24px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 16px;
-            transition: all 0.2s;
-            width: auto;
-            margin-top: 0;
-        }
-        .tab-button.active {
-            background-color: var(--tab-active);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(0, 168, 252, 0.4);
-        }
-        .tab-button:hover { transform: translateY(-2px); }
-
+        .tab-button { background: transparent; border: 2px solid var(--tab-active); color: var(--tab-active); padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 700; font-size: 16px; transition: all 0.2s; }
+        .tab-button.active { background-color: var(--tab-active); color: #fff; box-shadow: 0 0 15px rgba(0, 168, 252, 0.4); }
         h1 { font-size: 26px; margin: 0 0 15px 0; font-weight: 600; text-align: center; }
         .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 30px; font-size: 14px; }
         h2 { font-size: 20px; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); font-weight: 600; }
         .container { background-color: var(--bg-secondary); border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-weight: 500; font-size: 13px; }
-        input[type="text"], input[type="url"], textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-primary); color: var(--text-primary); font-size: 14px; transition: all 0.2s; }
-        input:focus, textarea:focus { outline: none; border-color: var(--main-accent); box-shadow: 0 0 0 2px rgba(29, 115, 185, 0.3); }
-        input[type="color"] { border: none; width: 40px; height: 25px; border-radius: 6px; cursor: pointer; }
-        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
-        button.action-btn { background-color: var(--main-accent); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; margin-top: 10px; transition: all 0.2s; }
-        button.action-btn:hover:not(:disabled) { background-color: #2980d1; transform: translateY(-1px); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        
+        input[type="text"], input[type="url"], textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        button.action-btn { background-color: var(--main-accent); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; margin-top: 10px; }
         .app-layout { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1200px; margin: 0 auto 20px auto; padding: 10px; }
         @media (min-width: 900px) { .app-layout { grid-template-columns: 1.5fr 1fr; } }
-        
-        .preview-wrapper { position: sticky; top: 20px; height: fit-content; }
-        .preview-info { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 10px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 10px; border: 1px solid #222; }
         .discord-embed-wrapper { background-color: #2f3136; border-radius: 4px; display: flex; max-width: 520px; width: 100%; }
         .embed-sidebar { width: 4px; border-radius: 4px 0 0 4px; flex-shrink: 0; }
         .embed-content { padding: 8px 16px 16px 12px; color: #dcddde; font-size: 14px; overflow: hidden; width: 100%; }
-        .embed-author { font-weight: 600; color: #ffffff; margin-bottom: 8px; }
-        .embed-title { font-weight: 700; color: #00a8fc; font-size: 16px; margin-bottom: 8px; word-break: break-word; }
-        .embed-title a { color: inherit; text-decoration: none; }
-        .embed-title a:hover { text-decoration: underline; }
-        .embed-description { font-size: 14px; white-space: pre-wrap; word-wrap: break-word; }
-        .embed-image { margin-top: 16px; }
-        .embed-image img { max-width: 100%; max-height: 300px; border-radius: 4px; display: block; }
-        .color-input-group { display: flex; align-items: center; gap: 10px; }
+        .embed-title { font-weight: 700; color: #00a8fc; font-size: 16px; margin-bottom: 8px; }
         .generated-url-box { background-color: var(--bg-primary); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-top: 15px; }
-        .url-display { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
-        .url-text { flex: 1; background-color: var(--bg-tertiary); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; word-break: break-all; }
-        .copy-btn { flex-shrink: 0; width: auto; margin: 0; background-color: #222; border: 1px solid #444; color: #fff; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+        .url-display { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .url-text { background-color: var(--bg-tertiary); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; word-break: break-all; border: 1px solid #333; }
+        .button-group { display: flex; gap: 8px; }
+        .copy-btn { flex: 1; background-color: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; font-weight: 600; }
         .copy-btn:hover { background-color: #333; }
-        .image-mode-selector { display: flex; gap: 20px; margin-top: 5px; align-items: center; }
-        .image-mode-selector label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; color: var(--text-primary); }
-        .embed-content.with-thumbnail { display: flex; gap: 16px; }
-        .embed-main-content { min-width: 0; flex: 1; }
-        .embed-thumbnail img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; flex-shrink: 0; margin-top: 8px; }
+        .copy-btn.success { background-color: var(--success-color); border-color: var(--success-color); }
+        .image-mode-selector { display: flex; gap: 20px; margin-top: 5px; }
+        .embed-thumbnail img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-top: 8px; }
       `}</style>
 
       <header className="main-header">
-        <button 
-            className={`tab-button ${activeTab === 'create' ? 'active' : ''}`}
-            onClick={() => setActiveTab('create')}
-        >
-            埋め込み作成
-        </button>
-        <button 
-            className={`tab-button ${activeTab === 'fetch' ? 'active' : ''}`}
-            onClick={() => setActiveTab('fetch')}
-        >
-            埋め込み取得
-        </button>
+        <button className={`tab-button ${activeTab === 'create' ? 'active' : ''}`} onClick={() => setActiveTab('create')}>埋め込み作成</button>
+        <button className={`tab-button ${activeTab === 'fetch' ? 'active' : ''}`} onClick={() => setActiveTab('fetch')}>埋め込み取得</button>
       </header>
 
       <div className="app-layout">
@@ -189,119 +142,82 @@ export default function Home() {
             <p className="subtitle">nemtudoのパクリでクカ</p>
 
             {activeTab === 'fetch' && (
-                <div className="fetch-panel">
-                    <h2>Embedデータを取得</h2>
-                    <div className="form-group">
-                        <label>EmbedのURL または ID</label>
-                        <input 
-                            type="text" 
-                            value={fetchInput} 
-                            onChange={(e) => setFetchInput(e.target.value)} 
-                            placeholder="https://embd.vercel.app/embed/xxxxxx または xxxxxx" 
-                        />
-                    </div>
-                    <button className="action-btn" onClick={handleFetch} disabled={isFetching}>
-                        {isFetching ? '読み込み中...' : 'データを読み込む'}
-                    </button>
-                    <p style={{marginTop: '15px', fontSize: '13px', color: '#888'}}>
-                        読み込みに成功すると、作成画面に移動し、内容が反映されます
-                    </p>
+              <div className="fetch-panel">
+                <h2>Embedデータを取得</h2>
+                <div className="form-group">
+                  <label>EmbedのURL または ID</label>
+                  <input type="text" value={fetchInput} onChange={(e) => setFetchInput(e.target.value)} placeholder="https://embd.vercel.app/embed/xxxxxx" />
                 </div>
+                <button className="action-btn" onClick={handleFetch} disabled={isFetching}>{isFetching ? '読み込み中...' : 'データを読み込む'}</button>
+              </div>
             )}
 
-            {/* CREATE TAB CONTENT */}
             {activeTab === 'create' && (
-                <>
-                    <h2>Customize</h2>
+              <>
+                <h2>Customize</h2>
+                <div className="form-group"><label>Author</label><input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} /></div>
+                <div className="form-group"><label>Title</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} /></div>
+                <div className="form-group"><label>Description</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} /></div>
+                <div className="form-group"><label>Image URL</label><input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} /></div>
+                
+                <div className="form-group">
+                  <label>画像表示タイプ</label>
+                  <div className='image-mode-selector'>
+                    <label><input type="radio" value="image" checked={imageDisplayMode === 'image'} onChange={e => setImageDisplayMode(e.target.value)} /> 大きい画像</label>
+                    <label><input type="radio" value="thumbnail" checked={imageDisplayMode === 'thumbnail'} onChange={e => setImageDisplayMode(e.target.value)} /> 小さい画像</label>
+                  </div>
+                </div>
 
-                    <div className="form-group">
-                    <label>Author</label>
-                    <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="ねこ" />
-                    </div>
+                <div className="form-group">
+                  <label>Color</label>
+                  <div style={{display:'flex', gap:'10px'}}>
+                    <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+                    <input type="text" value={color} onChange={(e) => setColor(e.target.value)} />
+                  </div>
+                </div>
 
-                    <div className="form-group">
-                    <label>Title</label>
-                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="12歳です" />
-                    </div>
+                <div className="form-group"><label>Redirect URL</label><input type="url" value={titleUrl} onChange={(e) => setTitleUrl(e.target.value)} /></div>
 
-                    <div className="form-group">
-                    <label>Description</label>
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="未成年との淫行を楽しむ✅️" />
-                    </div>
+                <button className="action-btn" onClick={handleGenerate} disabled={isGenerating}>{isGenerating ? '生成中' : '生成する'}</button>
 
-                    <div className="form-group">
-                    <label>Image URL</label>
-                    <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.png" />
+                {generatedUrl && (
+                  <div className="generated-url-box">
+                    <h2>生成されたURL</h2>
+                    <div className="url-display">
+                      <div className="url-text">{generatedUrl}</div>
+                      <div className="button-group">
+                        <button 
+                          className={`copy-btn ${copyStatus.active && copyStatus.type === 'normal' ? 'success' : ''}`} 
+                          onClick={() => handleCopy(generatedUrl, 'normal')}
+                        >
+                          {copyStatus.active && copyStatus.type === 'normal' ? 'コピー完了！' : 'コピー'}
+                        </button>
+                        <button 
+                          className={`copy-btn ${copyStatus.active && copyStatus.type === 'hidden' ? 'success' : ''}`} 
+                          onClick={() => handleCopy(`[\u180E](${generatedUrl})`, 'hidden')}
+                        >
+                          {copyStatus.active && copyStatus.type === 'hidden' ? 'コピー完了！' : 'URLを隠してコピー'}
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div className="form-group">
-                    <label>画像表示タイプ</label>
-                    <div className='image-mode-selector'>
-                        <label>
-                        <input type="radio" name="image-mode" value="image" checked={imageDisplayMode === 'image'} onChange={e => setImageDisplayMode(e.target.value)} />
-                        大きい画像 (Image)
-                        </label>
-                        <label>
-                        <input type="radio" name="image-mode" value="thumbnail" checked={imageDisplayMode === 'thumbnail'} onChange={e => setImageDisplayMode(e.target.value)} />
-                        小さい画像 (Thumbnail)
-                        </label>
-                    </div>
-                    </div>
-
-                    <div className="form-group">
-                    <label>Color</label>
-                    <div className="color-input-group">
-                        <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
-                        <input type="text" value={color} onChange={(e) => { if (/^#[0-9A-F]{6}$/i.test(e.target.value)) { setColor(e.target.value) }}} />
-                    </div>
-
-                    <div className="form-group" style={{ marginTop: '15px' }}>
-                    <label>Redirect URL</label>
-                    <input type="url" value={titleUrl} onChange={(e) => setTitleUrl(e.target.value)} placeholder="https://example.com (option)" />
-                    </div>
-                    </div>
-
-                    <button className="action-btn" onClick={handleGenerate} disabled={isGenerating}>
-                    {isGenerating ? '生成中' : '生成する'}
-                    </button>
-
-                    {generatedUrl && (
-                    <div className="generated-url-box">
-                        <h2>生成されたURL</h2>
-                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '10px' }}>このURLをDiscordに貼り付けてください</p>
-                        <div className="url-display">
-                        <div className="url-text">{generatedUrl}</div>
-                        <button className="copy-btn" onClick={copyToClipboard}>コピー</button>
-                        </div>
-                    </div>
-                    )}
-                </>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
 
         <aside className="preview-wrapper">
-          <div className="preview-info">使う前にチェックしろどわー</div>
           <div className="discord-embed-wrapper">
             <div className="embed-sidebar" style={{ backgroundColor: color }} />
             <div className={`embed-content ${imageUrl && imageDisplayMode === 'thumbnail' ? 'with-thumbnail' : ''}`}>
               <div className='embed-main-content'>
                 {author && <div className="embed-author">{author}</div>}
-                {title && (
-                  <div className="embed-title">
-                    {titleUrl ? ( <a href={titleUrl} target="_blank" rel="noopener noreferrer">{title}</a> ) : ( title )}
-                  </div>
-                )}
-                {description && (
-                  <div className="embed-description" dangerouslySetInnerHTML={{ __html: formatDescription(description) }} />
-                )}
-                {imageUrl && imageDisplayMode === 'image' && (
-                  <div className="embed-image"><img src={imageUrl} alt="Embed preview" /></div>
-                )}
+                {title && <div className="embed-title">{title}</div>}
+                {description && <div className="embed-description" dangerouslySetInnerHTML={{ __html: formatDescription(description) }} />}
+                {imageUrl && imageDisplayMode === 'image' && <div className="embed-image"><img src={imageUrl} style={{maxWidth:'100%', borderRadius:'4px'}} /></div>}
               </div>
-              {imageUrl && imageDisplayMode === 'thumbnail' && (
-                <div className="embed-thumbnail"><img src={imageUrl} alt="Embed thumbnail preview" /></div>
-              )}
+              {imageUrl && imageDisplayMode === 'thumbnail' && <div className="embed-thumbnail"><img src={imageUrl} /></div>}
             </div>
           </div>
         </aside>
@@ -309,4 +225,3 @@ export default function Home() {
     </>
   );
 }
-
