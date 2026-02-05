@@ -14,8 +14,6 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [fetchInput, setFetchInput] = useState('');
   const [isFetching, setIsFetching] = useState(false);
-
-  // コピー状態とタイマーの管理
   const [copyStatus, setCopyStatus] = useState({ type: null, active: false });
   const timerRef = useRef(null);
 
@@ -62,10 +60,8 @@ export default function Home() {
     }
   };
 
-  // 安定したコピー処理
   const handleCopy = async (text, type) => {
     try {
-      // 既存のタイマーがあればクリアしてリセット
       if (timerRef.current) clearTimeout(timerRef.current);
       
       await navigator.clipboard.writeText(text);
