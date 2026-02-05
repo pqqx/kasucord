@@ -95,28 +95,33 @@ export default function Home() {
       <style jsx global>{`
         :root { --main-accent: #1d73b9; --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-tertiary: #1a1a1a; --border-color: #333; --text-primary: #f5f5f5; --text-secondary: #aaaaaa; --tab-active: #00a8fc; --success-color: #28a745; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; background-color: #000; color: var(--text-primary); }
-        .main-header { display: flex; justify-content: center; gap: 20px; padding: 20px 0; }
-        .tab-button { background: transparent; border: 2px solid var(--tab-active); color: var(--tab-active); padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 700; transition: 0.2s; }
-        .tab-button.active { background-color: var(--tab-active); color: #fff; }
-        .container { background-color: var(--bg-secondary); border-radius: 10px; padding: 20px; border: 1px solid #222; max-width: 800px; margin: 0 auto; }
-        h1 { text-align: center; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 25px; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #000; color: var(--text-primary); line-height: 1.5; }
+        .main-header { display: flex; justify-content: center; gap: 20px; padding: 20px 0; margin-bottom: 20px; }
+        .tab-button { background: transparent; border: 2px solid var(--tab-active); color: var(--tab-active); padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 700; font-size: 16px; transition: all 0.2s; }
+        .tab-button.active { background-color: var(--tab-active); color: #fff; box-shadow: 0 0 15px rgba(0, 168, 252, 0.4); }
+        h1 { font-size: 26px; margin: 0 0 15px 0; font-weight: 600; text-align: center; }
+        .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 30px; font-size: 14px; }
+        h2 { font-size: 20px; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); font-weight: 600; }
+        .container { background-color: var(--bg-secondary); border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 13px; }
-        input, textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-primary); color: #fff; }
-        .action-btn { background: var(--main-accent); color: #fff; border: none; padding: 12px; border-radius: 6px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .app-layout { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 10px; }
+        label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-weight: 500; font-size: 13px; }
+        input[type="text"], input[type="url"], textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--bg-primary); color: var(--text-primary); font-size: 14px; }
+        button.action-btn { background-color: var(--main-accent); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; margin-top: 10px; }
+        .app-layout { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1200px; margin: 0 auto 20px auto; padding: 10px; }
         @media (min-width: 900px) { .app-layout { grid-template-columns: 1.5fr 1fr; } }
-        .discord-embed-wrapper { background: #2f3136; border-radius: 4px; display: flex; width: 100%; }
-        .embed-sidebar { width: 4px; border-radius: 4px 0 0 4px; }
-        .embed-content { padding: 12px; color: #dcddde; font-size: 14px; width: 100%; }
-        .embed-title { font-weight: 700; color: #00a8fc; font-size: 16px; margin-bottom: 4px; }
-        .generated-url-box { background: var(--bg-primary); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .button-group { display: flex; gap: 8px; margin-top: 10px; }
-        .copy-btn { flex: 1; padding: 10px; border-radius: 6px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; transition: 0.2s; font-weight: bold; }
-        .copy-btn.success { background: var(--success-color); border-color: var(--success-color); }
-        .preview-info { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 10px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 10px; border: 1px solid #222; }
+        .discord-embed-wrapper { background-color: #2f3136; border-radius: 4px; display: flex; max-width: 520px; width: 100%; }
+        .embed-sidebar { width: 4px; border-radius: 4px 0 0 4px; flex-shrink: 0; }
+        .embed-content { padding: 8px 16px 16px 12px; color: #dcddde; font-size: 14px; overflow: hidden; width: 100%; }
+        .embed-title { font-weight: 700; color: #00a8fc; font-size: 16px; margin-bottom: 8px; }
+        .generated-url-box { background-color: var(--bg-primary); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .url-display { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .url-text { background-color: var(--bg-tertiary); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; word-break: break-all; border: 1px solid #333; }
+        .button-group { display: flex; gap: 8px; }
+        .copy-btn { flex: 1; background-color: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; font-weight: 600; }
+        .copy-btn:hover { background-color: #333; }
+        .copy-btn.success { background-color: var(--success-color); border-color: var(--success-color); }
+        .image-mode-selector { display: flex; gap: 20px; margin-top: 5px; }
+        .embed-thumbnail img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-top: 8px; }
       `}</style>
 
       <header className="main-header">
@@ -149,7 +154,7 @@ export default function Home() {
                 
                 <div className="form-group">
                   <label>画像表示タイプ</label>
-                  <div style={{display:'flex', gap:'20px'}}>
+                  <div className='image-mode-selector'>
                     <label><input type="radio" value="image" checked={imageDisplayMode === 'image'} onChange={e => setImageDisplayMode(e.target.value)} /> 大きい画像</label>
                     <label><input type="radio" value="thumbnail" checked={imageDisplayMode === 'thumbnail'} onChange={e => setImageDisplayMode(e.target.value)} /> 小さい画像</label>
                   </div>
