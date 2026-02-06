@@ -184,7 +184,7 @@ export default function Home() {
                         <button className={`copy-btn ${copyStatus.active && copyStatus.type === 'normal' ? 'success' : ''}`} onClick={() => handleCopy(generatedUrl, 'normal')}>
                           {copyStatus.active && copyStatus.type === 'normal' ? 'コピー完了！' : 'コピー'}
                         </button>
-                        <button className={`copy-btn ${copyStatus.active && copyStatus.type === 'hidden' ? 'success' : ''}`} onClick={() => handleCopy(`[\u200B](${generatedUrl})`, 'hidden')}>
+                        <button className={`copy-btn ${copyStatus.active && copyStatus.type === 'hidden' ? 'success' : ''}`} onClick={() => handleCopy(`[󠅺](${generatedUrl})`, 'hidden')}>
                           {copyStatus.active && copyStatus.type === 'hidden' ? 'コピー完了！' : 'URLを隠してコピー'}
                         </button>
                       </div>
